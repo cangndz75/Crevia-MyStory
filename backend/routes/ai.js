@@ -1,12 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const { Configuration, OpenAIApi } = require("openai");
+const OpenAI = require("openai");
 
-const configuration = new Configuration({
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
-
-const openai = new OpenAIApi(configuration);
 
 router.post("/generate-story", async (req, res) => {
   try {
@@ -22,35 +20,20 @@ Her cümlen pozitif, yaş grubuna göre basit ve akıcı olsun. Olumsuz temalard
 Karakter:
 
 - İsim: ${character.name || "Bir sevimli karakter"}
-- Açıklama: ${
-      character.description || "Neşeli, meraklı ve maceracı bir karakter."
-    }
+- Açıklama: ${character.description || "Neşeli, meraklı ve maceracı bir karakter."}
 - Tarz: ${character.ai_style_hint || "pozitif, eğlenceli, neşeli"}
-- Olumsuz Temalar: ${
-      character.ai_negative_prompt || "korku yok, karanlık yok, tehlike yok"
-    }
-- Giriş Cümlesi: ${
-      character.default_story_opening ||
-      "Bir varmış bir yokmuş, sevimli bir karakter büyük bir maceraya çıkmış..."
-    }
+- Olumsuz Temalar: ${character.ai_negative_prompt || "korku yok, karanlık yok, tehlike yok"}
+- Giriş Cümlesi: ${character.default_story_opening || "Bir varmış bir yokmuş, sevimli bir karakter büyük bir maceraya çıkmış..."}
 
 ---
 
 Mekan:
 
 - İsim: ${venue.name || "Büyülü bir diyar"}
-- Açıklama: ${
-      venue.description || "Harikalarla dolu, güvenli ve renkli bir yer."
-    }
+- Açıklama: ${venue.description || "Harikalarla dolu, güvenli ve renkli bir yer."}
 - Tarz: ${venue.ai_style_hint || "sıcacık, hayal dolu, masalsı"}
-- Olumsuz Temalar: ${
-      venue.ai_negative_prompt ||
-      "karanlık yok, korkutucu şeyler yok, tehlike yok"
-    }
-- Giriş Cümlesi: ${
-      venue.default_story_opening ||
-      "Bir zamanlar harikalarla dolu bir yerde çok güzel bir macera yaşanmış..."
-    }
+- Olumsuz Temalar: ${venue.ai_negative_prompt || "karanlık yok, korkutucu şeyler yok, tehlike yok"}
+- Giriş Cümlesi: ${venue.default_story_opening || "Bir zamanlar harikalarla dolu bir yerde çok güzel bir macera yaşanmış..."}
 
 ---
 
@@ -67,14 +50,14 @@ Sonunda mutlaka mutlu bir son yaz.
 Masal:
 `;
 
-    const completion = await openai.createChatCompletion({
+    const completion = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [{ role: "user", content: prompt }],
       max_tokens: 1000,
       temperature: 0.7,
     });
 
-    const story = completion.data.choices[0].message.content;
+    const story = completion.choices[0].message.content;
 
     res.json({ story });
   } catch (error) {
