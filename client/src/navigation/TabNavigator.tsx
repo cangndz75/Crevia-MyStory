@@ -1,9 +1,11 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import HomeScreen from "../screens/HomeScreen";
-import CreateStoryScreen from "../screens/story/CreateStoryScreen";
+import CreateStoryScreen from "../screens/story/CharacterSelectScreen";
 import ProfileScreen from "../screens/profile/ProfileScreen";
 import { Ionicons } from "@expo/vector-icons";
+import CharacterSelectScreen from "../screens/story/CharacterSelectScreen";
+import LocationSelectScreen from "../screens/story/LocationSelectScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -57,7 +59,7 @@ export default function TabNavigator() {
       />
       <Tab.Screen
         name="Create"
-        component={CreateStoryScreen}
+        component={CharacterSelectScreen}
         options={{ headerShown: false }}
       />
       <Tab.Screen
