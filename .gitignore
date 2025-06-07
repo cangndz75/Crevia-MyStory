@@ -1,0 +1,19 @@
+# Node modules
+backend/node_modules/
+client/node_modules/
+
+# Env files
+backend/.env
+client/.env
+
+# Logs
+backend/logs
+*.log
+
+# Expo
+client/.expo/
+client/.expo-shared/
+
+# OS junk files
+.DS_Store
+Thumbs.db
