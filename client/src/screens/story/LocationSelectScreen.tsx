@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, FlatList, Image, Dimensions } from "react-native";
+import { View, Text, TouchableOpacity, FlatList, Image, Dimensions, ActivityIndicator, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { supabase } from "../../utils/supabase";
 import Animated, { FadeInUp } from "react-native-reanimated";
@@ -9,6 +9,20 @@ interface Venue {
   name: string;
   image_url: string;
   rating: number;
+  description?: string;
+  ai_style_hint?: string;
+  ai_negative_prompt?: string;
+  default_story_opening?: string;
+}
+
+interface Character {
+  id: number;
+  name: string;
+  image_url: string;
+  description?: string;
+  ai_style_hint?: string;
+  ai_negative_prompt?: string;
+  default_story_opening?: string;
 }
 
 interface LocationSelectScreenProps {
@@ -19,8 +33,10 @@ interface LocationSelectScreenProps {
 export default function LocationSelectScreen({ navigation, route }: LocationSelectScreenProps) {
   const [venues, setVenues] = useState<Venue[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
+  const [generatingStory, setGeneratingStory] = useState(false);
 
-  const selectedCharacter = route?.params?.selectedCharacter;
+  const selectedCharacter: Character = route?.params?.selectedCharacter;
 
   useEffect(() => {
     fetchVenues();
@@ -48,22 +64,62 @@ export default function LocationSelectScreen({ navigation, route }: LocationSele
 
   const handleSelectVenue = (venue: Venue) => {
     console.log("Seçilen mekan:", venue);
+    setSelectedVenue(venue);
+  };
 
-    navigation.navigate("StorySummaryScreen", {
-      selectedCharacter,
-      selectedVenue: venue,
-    });
+  const handleGenerateStory = async () => {
+    if (!selectedVenue) {
+      Alert.alert("Lütfen bir mekan seçin!");
+      return;
+    }
+
+    setGeneratingStory(true);
+
+    try {
+      const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+
+      const response = await fetch(`${API_BASE_URL}/ai/generate-story`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          character: selectedCharacter,
+          venue: selectedVenue,
+          ageRange: "3-5",
+        }),
+      });
+
+      const data = await response.json();
+
+      console.log("AI MASAL:", data.story);
+
+      navigation.navigate("StorySummaryScreen", {
+        story: data.story,
+        selectedCharacter,
+        selectedVenue,
+      });
+
+    } catch (error) {
+      console.error("Hikaye oluşturma hatası:", error);
+      Alert.alert("Hikaye oluşturulurken bir hata oluştu.");
+    } finally {
+      setGeneratingStory(false);
+    }
   };
 
   const numColumns = 2;
   const cardWidth = Dimensions.get("window").width / numColumns - 30;
 
   const renderVenueCard = ({ item }: { item: Venue }) => {
+    const isSelected = selectedVenue?.id === item.id;
+
     return (
       <Animated.View entering={FadeInUp.duration(500)}>
-        <View
+        <TouchableOpacity
+          onPress={() => handleSelectVenue(item)}
           style={{
-            backgroundColor: "#fff",
+            backgroundColor: isSelected ? "#D1C4E9" : "#fff",
             borderRadius: 16,
             padding: 12,
             margin: 10,
@@ -86,18 +142,7 @@ export default function LocationSelectScreen({ navigation, route }: LocationSele
               {(item.rating ?? 0).toFixed(1)}
             </Text>
           </View>
-          <TouchableOpacity
-            onPress={() => handleSelectVenue(item)}
-            style={{
-              backgroundColor: "#FF69B4",
-              paddingVertical: 10,
-              paddingHorizontal: 20,
-              borderRadius: 20,
-            }}
-          >
-            <Text style={{ color: "#fff", fontSize: 16, fontWeight: "bold" }}>Seç</Text>
-          </TouchableOpacity>
-        </View>
+        </TouchableOpacity>
       </Animated.View>
     );
   };
@@ -124,6 +169,27 @@ export default function LocationSelectScreen({ navigation, route }: LocationSele
         numColumns={numColumns}
         contentContainerStyle={{ paddingBottom: 20 }}
       />
+
+      <TouchableOpacity
+        onPress={handleGenerateStory}
+        disabled={generatingStory}
+        style={{
+          backgroundColor: "#FF69B4",
+          paddingVertical: 16,
+          borderRadius: 20,
+          alignItems: "center",
+          marginVertical: 20,
+          opacity: generatingStory ? 0.6 : 1,
+        }}
+      >
+        {generatingStory ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold" }}>
+            Hikaye Oluştur
+          </Text>
+        )}
+      </TouchableOpacity>
     </View>
   );
 }
