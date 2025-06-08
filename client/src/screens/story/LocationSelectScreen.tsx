@@ -76,8 +76,8 @@ export default function LocationSelectScreen({ navigation, route }: LocationSele
     setGeneratingStory(true);
 
     try {
-      const API_BASE_URL = process.env.API_BASE_URL;
-
+      const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+      console.log("API_BASE_URL:", API_BASE_URL);
       const response = await fetch(`${API_BASE_URL}/ai/generate-story`, {
         method: "POST",
         headers: {
