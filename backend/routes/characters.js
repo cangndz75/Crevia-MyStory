@@ -6,7 +6,7 @@ router.get('/', async (req, res) => {
   const { data, error } = await supabase
     .from('characters')
     .select('*')
-    .eq('isActive', true)
+    .eq('isactive', true)
     .order('order', { ascending: true });
 
   if (error) {
