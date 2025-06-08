@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const fetch = require("node-fetch"); // Eğer yoksa: npm install node-fetch
+const fetch = require("node-fetch");
 
 router.post("/generate-story", async (req, res) => {
   try {
