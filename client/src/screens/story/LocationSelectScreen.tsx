@@ -91,7 +91,7 @@ export default function LocationSelectScreen({ navigation, route }: LocationSele
       });
 
       const data = await response.json();
-
+      console.log("FULL RESPONSE:", data);  
       console.log("AI MASAL:", data.story);
 
       navigation.navigate("StorySummaryScreen", {

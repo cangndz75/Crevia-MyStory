@@ -5,7 +5,7 @@ require("dotenv").config();
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use("/api/ai", require("./routes/ai"));
+app.use("/api/ai", require("./routes/ai-gemini"));
 app.use("/api/characters", require("./routes/characters"));
 app.use("/api/venue", require("./routes/venue"));
 
